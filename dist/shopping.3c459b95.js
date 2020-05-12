@@ -126,7 +126,9 @@ var items = [];
 function handleSubmit(e) {
   e.preventDefault();
   console.log('submitted!');
-  var name = e.currentTarget.item.value;
+  var name = e.currentTarget.item.value; // if its empty, then dont submit it
+
+  if (!name) return;
   var item = {
     name: name,
     id: Date.now(),
@@ -136,19 +138,49 @@ function handleSubmit(e) {
   items.push(item);
   console.log("There are now ".concat(items.length, " in your state")); // clear the form
 
-  e.target.reset();
-  displayItems();
+  e.target.reset(); // fire off a custom event that will tell anyone else who cares that the items have been updated
+
+  list.dispatchEvent(new CustomEvent('itemsUpdated'));
 }
 
 function displayItems() {
   console.log(items);
   var html = items.map(function (item) {
-    return "<li class=\"shopping-item\">\n      <input type=\"checkbox\">\n      <span class=itemName\">".concat(item.name, "</span>\n      <button>&times;</button>\n  </li>");
+    return "<li class=\"shopping-item\">\n      <input type=\"checkbox\">\n      <span class=itemName\">".concat(item.name, "</span>\n      <button aria-label=\"Remove ").concat(item.name, "\">&times;</button>\n  </li>");
   }).join('');
   list.innerHTML = html;
 }
 
+function mirrorToLocalStorage() {
+  console.info('Saving items to local storage');
+  localStorage.setItem('items', JSON.stringify(items));
+}
+
+function restoreFromLocalStorage() {
+  console.info('Restoring from LS'); // pull the items from LS
+
+  var lsItems = JSON.parse(localStorage.getItem('items'));
+
+  if (lsItems.length) {
+    items = lsItems;
+    list.dispatchEvent(new CustomEvent('itemsUpdated'));
+  }
+}
+
+function deleteItem(id) {
+  console.log('DELETING ITEM');
+}
+
 shoppingForm.addEventListener('submit', handleSubmit);
+list.addEventListener('itemsUpdated', displayItems);
+list.addEventListener('itemsUpdated', mirrorToLocalStorage); // Event Delegation: we listen for the click on the list <ul> but then delegate the click over to the button if that is what was clicked
+
+list.addEventListener('click', function (e) {
+  if (e.target.matches('button')) {
+    deleteItem();
+  }
+});
+restoreFromLocalStorage();
 },{}],"../../../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -177,7 +209,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63099" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49791" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
