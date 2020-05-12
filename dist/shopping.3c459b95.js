@@ -119,7 +119,36 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"shopping.js":[function(require,module,exports) {
 var shoppingForm = document.querySelector('.shopping');
-var list = document.querySelector('.list');
+var list = document.querySelector('.list'); // I need an array to hold the state
+
+var items = [];
+
+function handleSubmit(e) {
+  e.preventDefault();
+  console.log('submitted!');
+  var name = e.currentTarget.item.value;
+  var item = {
+    name: name,
+    id: Date.now(),
+    complete: false
+  }; // push the items into our state
+
+  items.push(item);
+  console.log("There are now ".concat(items.length, " in your state")); // clear the form
+
+  e.target.reset();
+  displayItems();
+}
+
+function displayItems() {
+  console.log(items);
+  var html = items.map(function (item) {
+    return "<li class=\"shopping-item\">\n      <input type=\"checkbox\">\n      <span class=itemName\">".concat(item.name, "</span>\n      <button>&times;</button>\n  </li>");
+  }).join('');
+  list.innerHTML = html;
+}
+
+shoppingForm.addEventListener('submit', handleSubmit);
 },{}],"../../../../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -148,7 +177,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49644" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63099" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
