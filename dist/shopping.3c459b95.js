@@ -146,7 +146,7 @@ function handleSubmit(e) {
 function displayItems() {
   console.log(items);
   var html = items.map(function (item) {
-    return "<li class=\"shopping-item\">\n      <input type=\"checkbox\">\n      <span class=itemName\">".concat(item.name, "</span>\n      <button aria-label=\"Remove ").concat(item.name, "\">&times;</button>\n  </li>");
+    return "<li class=\"shopping-item\">\n      <input\n        value=\"".concat(item.id, "\"\n        type=\"checkbox\"\n        ").concat(item.complete ? 'checked' : '', "\n      >\n      <span class=itemName\">").concat(item.name, "</span>\n      <button\n        aria-label=\"Remove ").concat(item.name, "\"\n        value=\"").concat(item.id, "\"\n        >&times;</button>\n  </li>");
   }).join('');
   list.innerHTML = html;
 }
@@ -168,7 +168,22 @@ function restoreFromLocalStorage() {
 }
 
 function deleteItem(id) {
-  console.log('DELETING ITEM');
+  console.log('DELETING ITEM', id); // update our items array without this one
+
+  items = items.filter(function (item) {
+    return item.id !== id;
+  });
+  console.log(items);
+  list.dispatchEvent(new CustomEvent('itemsUpdated'));
+}
+
+function markAsComplete(id) {
+  console.log('Marking as complete', id);
+  var itemRef = items.find(function (item) {
+    return item.id === id;
+  });
+  itemRef.complete = !itemRef.complete;
+  list.dispatchEvent(new CustomEvent('itemsUpdated'));
 }
 
 shoppingForm.addEventListener('submit', handleSubmit);
@@ -176,8 +191,14 @@ list.addEventListener('itemsUpdated', displayItems);
 list.addEventListener('itemsUpdated', mirrorToLocalStorage); // Event Delegation: we listen for the click on the list <ul> but then delegate the click over to the button if that is what was clicked
 
 list.addEventListener('click', function (e) {
+  var id = parseInt(e.target.value);
+
   if (e.target.matches('button')) {
-    deleteItem();
+    deleteItem(id);
+  }
+
+  if (e.target.matches('input[type="checkbox"]')) {
+    markAsComplete(id);
   }
 });
 restoreFromLocalStorage();
@@ -209,7 +230,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49791" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50556" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
